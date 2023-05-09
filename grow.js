@@ -1,4 +1,5 @@
-/** @param {import(".").NS} ns */
+/** @param {NS} ns */
 export async function main(ns) {
-  await ns.grow(args[0]);
+  const target = arguments[0].args[0];
+	await ns.grow(target);
 }

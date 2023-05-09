@@ -1,4 +1,5 @@
 /** @param {NS} ns */
 export async function main(ns) {
-  await ns.weaken(args[0]);
+  const target = arguments[0].args[0];
+	await ns.weaken(target);
 }
