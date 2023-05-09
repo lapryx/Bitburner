@@ -9,4 +9,5 @@ export async function main(ns) {
 		fullUrl = baseUrl + fileName;
 		ns.wget(fullUrl,fileName);
 	}
+  ns.tprint("hellow world");
 }
