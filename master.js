@@ -2,6 +2,17 @@
 import { scan_root } from './scan_root.js';
 import { scan } from './scan.js';
 
+/*  
+  ToDo:
+    - change ram check to use an array for predetermined values
+    - add functionality using formulas when aquired (and check if its available)
+    - add regular check for nuking
+    - recheck usable hosts at set intervals (15 min) or if possible when manually triggered after e.g. buying a new hack
+    - make it loop then wait for the first script to be released (the if is running doesnt do anything at the moment)
+
+
+*/
+
 export async function main(ns) {
 	let hostsCheck = await scan(ns,"home");
 	let hosts = await scan_root(ns,hostsCheck);
