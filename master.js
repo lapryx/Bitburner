@@ -9,7 +9,7 @@ import { scan } from './scan.js';
     - add regular check for nuking
     - recheck usable hosts at set intervals (15 min) or if possible when manually triggered after e.g. buying a new hack
     - make it loop then wait for the first script to be released (the if is running doesnt do anything at the moment)
-
+    - create function that finds the optimal ratio of hack/grow and weaken to keep max hack (if needed in 2 cycles)`
 
 */
 
