@@ -10,9 +10,26 @@ import { find_optimal_target } from './find_target.js';
 	- recheck usable hosts at set intervals (15 min) or if possible when manually triggered after e.g. buying a new hack
 	- make it loop then wait for the first script to be released (the if is running doesnt do anything at the moment)
 	- create function that finds the optimal ratio of hack/grow and weaken to keep max hack (if needed in 2 cycles)`
-	- test
+	- keep count of when we have enough weaken or grow to reach the threshold and then skip that check
 */
 
+
+/*
+	program description:
+	1. scan for all hosts
+	2. nuke all possible hosts (using nuke.js)
+	3. create a list of usable hosts (using scan_root.js should be renamed)
+	4. find the optimal target
+	5. run the hacking script
+	    a. check if host is usable
+		b. calculate the thresholds for target
+		c. check for the action to be taken
+		d. check if script is available
+		e. run the script
+		f. sleep until first script to be released 
+	6. loop 
+
+*/
 export async function master_formulas(ns,hosts){
 	let host = "";
 	let target = "";
@@ -80,15 +97,12 @@ export async function master_basic(ns,hosts){
 			if (ns.getServerSecurityLevel(target) > securityThresh) {
 				action = "weaken";
 				time = (20*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
-				ns.tprint("Weakening " + target + " for " + time + " seconds");
 			} else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
 				action = "grow";
 				time = (16*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
-				ns.tprint("Growing " + target + " for " + time + " seconds");
 			} else {
 				action = "hack";
 				time = (5*((2.5*(ns.getServerRequiredHackingLevel(target)*minSecurityLevel)+500)/(level+50))/player.mults.hacking_speed)
-				ns.tprint("Hacking " + target + " for " + time + " seconds");
 			}
 			script = action + ".js";
 			ram = ns.getScriptRam(script);
@@ -115,19 +129,16 @@ export async function main(ns) {
 	var hosts = await scan_usable(ns,hostsCheck);
 	var host = "home";
 	var formulas_available = ns.fileExists("Formulas.exe");
-
+	while (true) {
+		formulas_available = ns.fileExists("Formulas.exe");
+		// run nuke script on all servers to ensure they are up to date
 	if (formulas_available) {
 		await master_formulas(ns,hosts);
 	} else {
 		await master_basic(ns,hosts);
 	}
+	await ns.sleep(100);
+	}
 
-
-
-	/* What does this function need to do:
-	 * 		- calculate hack, grow and weaken threads and divide them over usable servers
-	 * 		- occasionally update target and usable servers (15 min?)
-	 * 		
-	 */
 
 }
