@@ -1,4 +1,5 @@
 /** @param {NS} ns */
+
 export async function scan(ns,target) {
 	let current = "";
 	let hosts = ns.scan(target);

@@ -1,0 +1,10 @@
+{
+    "bitburner.authToken": "SN59vJ/n23ibyxd9QuRuQqfJZtdgnndkeDs1O3Eo985halnIqhFKOrkKb7Fkpz3w",
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.showFileWatcherEnabledNotification": true,
+    "bitburner.showPushSuccessNotification": true,
+    "typescript.experimental.tsserver.web.enableProjectWideIntellisense": true,
+    "typescript.tsdk": "./",
+    "javascript.suggest.completeFunctionCalls": true,
+    "typescript.format.semicolons": "insert"
+}
