@@ -54,25 +54,41 @@ export async function master_formulas(ns,hosts){
 	} 
 }
 
-export async function master_basic(ns,hosts,target){
-	let securityThresh = ns.getServerMinSecurityLevel(target) * 1.5;
-	let moneyThresh = ns.getServerMaxMoney(target) * 0.85;
+export async function master_basic(ns,hosts){
+	let target = "";
 	let host = "";
 	let script = "";
 	let ram = 0;
 	let action = "";
 	let threads = 0;
+	let time = 50;
+	let level = 0;
+	let player = ns.getPlayer();
+	var hostsCheck = await scan(ns,"home");
 	
 	while(true) {
+		level = ns.getHackingLevel();
+		var hosts = await scan_usable(ns,hostsCheck);
+		target = find_optimal_target(ns,hosts);
+		let minSecurityLevel = Math.floor(ns.getServerBaseSecurityLevel(target)/3,1);
+		let securityThresh = ns.getServerMinSecurityLevel(target) * 1.5;
+		let moneyThresh = ns.getServerMaxMoney(target) * 0.85;
+		for (let s = 0; s < 50; s++) {
 		for (let  i = 0; i < hosts.length; i++) {
 			host = hosts[i];
 			if ( !ns.hasRootAccess(host) ) { break; }
 			if (ns.getServerSecurityLevel(target) > securityThresh) {
 				action = "weaken";
+				time = (20*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
+				ns.tprint("Weakening " + target + " for " + time + " seconds");
 			} else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
 				action = "grow";
+				time = (16*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
+				ns.tprint("Growing " + target + " for " + time + " seconds");
 			} else {
 				action = "hack";
+				time = (5*((2.5*(ns.getServerRequiredHackingLevel(target)*minSecurityLevel)+500)/(level+50))/player.mults.hacking_speed)
+				ns.tprint("Hacking " + target + " for " + time + " seconds");
 			}
 			script = action + ".js";
 			ram = ns.getScriptRam(script);
@@ -83,11 +99,12 @@ export async function master_basic(ns,hosts,target){
 				}
 				await ns.exec(script, host, threads, target);
 				while(ns.isRunning(script, "home", target)) {
-					await ns.sleep(500);
+					await ns.sleep(50);
 				}
 			}
-			await ns.sleep(500);
+			await ns.sleep(50);
 			//
+		} await ns.sleep(time*1000);
 		}
 		await ns.sleep(500);
 	} 
@@ -102,16 +119,12 @@ export async function main(ns) {
 	if (formulas_available) {
 		await master_formulas(ns,hosts);
 	} else {
-		let target = arguments[0].args[0];
-		await master_basic(ns,hosts,target);
+		await master_basic(ns,hosts);
 	}
 
 
 
 	/* What does this function need to do:
-	 * 		- find a decent target (until formulas is aquired)
-	 * 		- update the target with a formula after formulas is aquired (check if its available?)
-	 * 		- find usable servers (do they need a backdoor?)
 	 * 		- calculate hack, grow and weaken threads and divide them over usable servers
 	 * 		- occasionally update target and usable servers (15 min?)
 	 * 		
