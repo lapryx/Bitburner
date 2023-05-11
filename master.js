@@ -96,7 +96,8 @@ export async function master_basic(ns,hosts){
 			if ( !ns.hasRootAccess(host) ) { break; }
 			if (ns.getServerSecurityLevel(target) > securityThresh) {
 				action = "weaken";
-				time = (20*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
+				//using actual security level here as it is of course not yet weakened to the min sec level
+				time = (20*((2.5*(ns.getServerSecurityLevel(target)*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
 			} else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
 				action = "grow";
 				time = (16*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
