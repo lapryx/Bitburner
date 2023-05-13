@@ -87,23 +87,23 @@ export async function master_basic(ns,hosts){
 		level = ns.getHackingLevel();
 		var hosts = await scan_usable(ns,hostsCheck);
 		target = find_optimal_target(ns,hosts);
-		let minSecurityLevel = Math.floor(ns.getServerBaseSecurityLevel(target)/3,1);
 		let securityThresh = ns.getServerMinSecurityLevel(target) * 1.5;
 		let moneyThresh = ns.getServerMaxMoney(target) * 0.85;
 		for (let s = 0; s < 50; s++) {
 		for (let  i = 0; i < hosts.length; i++) {
+			let securityLevel = ns.getServerSecurityLevel(target);
 			host = hosts[i];
 			if ( !ns.hasRootAccess(host) ) { break; }
 			if (ns.getServerSecurityLevel(target) > securityThresh) {
 				action = "weaken";
 				//using actual security level here as it is of course not yet weakened to the min sec level
-				time = (20*((2.5*(ns.getServerSecurityLevel(target)*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
+				time = (20*((2.5*(securityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
 			} else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
 				action = "grow";
-				time = (16*((2.5*(minSecurityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
+				time = (16*((2.5*(securityLevel*ns.getServerRequiredHackingLevel(target))+500)/(level+50))/(player.mults.hacking_speed));
 			} else {
 				action = "hack";
-				time = (5*((2.5*(ns.getServerRequiredHackingLevel(target)*minSecurityLevel)+500)/(level+50))/player.mults.hacking_speed)
+				time = (5*((2.5*(ns.getServerRequiredHackingLevel(target)*securityLevel)+500)/(level+50))/player.mults.hacking_speed)
 			}
 			script = action + ".js";
 			ram = ns.getScriptRam(script);
@@ -119,7 +119,7 @@ export async function master_basic(ns,hosts){
 			}
 			await ns.sleep(50);
 			//
-		} await ns.sleep(time*1000);
+		} await ns.sleep(time*1000+50);
 		}
 		await ns.sleep(500);
 	} 
