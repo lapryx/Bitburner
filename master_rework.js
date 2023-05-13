@@ -49,19 +49,22 @@ export async function master_basic(ns,hosts,target) {
 	let time = 15;
 	let actions = {"weaken": "weaken.js","grow": "grow.js","hack": "hack.js"};
 	let action = "";
+	let hackRam = await ns.getScriptRam(actions["hack"]);
+	let growRam = await ns.getScriptRam(actions["grow"]);
 	let minSecurityLevel = ns.getServerMinSecurityLevel(target);
 	let requiredLvl = ns.getServerRequiredHackingLevel(target);
 	let maxMoney = ns.getServerMaxMoney(target);
 	let growPercent = (Math.pow((Math.min((1+(1.03-1)/minSecurityLevel),1.0035)),(1*(ns.getServerGrowth(target)/100)*player.mults.hacking_grow))-1);
 	let moneyHacked = ((maxMoney)*((100-minSecurityLevel/100)*((level-(requiredLvl-1))/level)*player.mults.hacking_money)/24000);
 	let growPerhack = Math.ceil(((moneyHacked)/((growPercent)*(maxMoney-moneyHacked))))
-	let ramPerCycle = await ns.getScriptRam(actions["grow"])*growPerhack + await ns.getScriptRam(actions["hack"]);
+	let ramPerCycle = growRam*growPerhack + hackRam;
 	let weakenRam = await ns.getScriptRam(actions["weaken"]);
 	let securityLevel = 0;
 	let weakenThreadsTotal = 0;
 	let weakenThreads = 0;
 	let growThreads = 0;
 	let hackThreads = 0;
+	let growCounter = ramPerCycle;
 
 	for (let s = 0; s < 10; s++) {
 		securityLevel = ns.getServerSecurityLevel(target);
@@ -76,15 +79,16 @@ export async function master_basic(ns,hosts,target) {
 					weakenThreads++;
 					weakenThreadsTotal--;
 				}
-				await ns.sleep(25);
 			} 
-			while (ramAvailable > ramPerCycle) {
-				
-				if (ramPerCycle <= ramAvailable) {
-                    ramAvailable -= ramPerCycle;
-					growThreads += growPerhack;
+			while (ramAvailable >= Math.min(growRam,hackRam)) {
+				if (counter > 0 && ramAvailable >= growRam) {
+					growThreads++;
+					growcounter--;
+					}
+				if (counter = 0 && ramAvailable >= hackRam) {
 					hackThreads++;
-                }
+					growcounter = ramPerCycle
+					}
 				await ns.sleep(26);
 			}
 			// we now know how much weakening and growing/hacking to do on target, we need to calculate the lowest time 
